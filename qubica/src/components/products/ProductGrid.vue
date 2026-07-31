@@ -40,7 +40,8 @@ defineProps<{
 .product-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.5rem;
+
+    gap: var(--space-lg);
 }
 
 .empty-state {
@@ -49,25 +50,38 @@ defineProps<{
     align-items: center;
     justify-content: center;
 
-    min-height: 300px;
+    min-height: 18rem;
+    padding: var(--space-2xl);
 
-    color: var(--color-text-muted);
     text-align: center;
+    color: var(--color-text-muted);
 }
 
 .empty-state i {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
+
     color: var(--color-primary);
-    font-size: 2.5rem;
+
+    font-size: 3rem;
 }
 
 .empty-state h2 {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-sm);
+
     color: var(--color-text);
+
+    font-size: var(--font-size-xl);
+    font-weight: 700;
 }
 
 .empty-state p {
+    max-width: 30rem;
     margin: 0;
+
+    color: var(--color-text-muted);
+
+    font-size: var(--font-size-md);
+    line-height: 1.6;
 }
 
 @media (max-width: 1050px) {
@@ -76,15 +90,30 @@ defineProps<{
     }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 768px) {
     .product-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: var(--space-md);
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
     .product-grid {
         grid-template-columns: 1fr;
+    }
+
+    .empty-state {
+        min-height: 14rem;
+        padding: var(--space-xl);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+    }
+
+    .empty-state h2 {
+        font-size: var(--font-size-lg);
     }
 }
 </style>
