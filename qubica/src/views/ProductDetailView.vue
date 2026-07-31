@@ -175,21 +175,18 @@ watch(
 </template>
 <style scoped>
 
-.add-to-cart-button.added {
-    background-color: #16a34a;
-}
-
-.add-to-cart-button.added:hover {
-    background-color: #15803d;
-}
-.product-detail-view {
-    width: 100%;
-}
-
 /* ==========================
    BACK LINK
 ========================== */
+.add-to-cart-button.added {
+    background-color: var(--color-success);
+    box-shadow: var(--shadow-sm);
+}
 
+.add-to-cart-button.added:hover {
+    background-color: var(--color-success-hover);
+    box-shadow: var(--shadow-md);
+}
 .back-link {
     display: inline-flex;
     align-items: center;
