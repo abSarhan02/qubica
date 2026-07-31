@@ -1,11 +1,38 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 
-import type { Product } from "../types/product";
 import type { CartItem } from "../types/cart";
+import type { Product } from "../types/product";
+
+const CART_STORAGE_KEY = "vitrina-cart";
+
+function loadStoredCart(): CartItem[] {
+    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+
+    if (!storedCart) {
+        return [];
+    }
+
+    try {
+        const parsedCart: unknown = JSON.parse(storedCart);
+
+        if (!Array.isArray(parsedCart)) {
+            return [];
+        }
+
+        return parsedCart as CartItem[];
+    } catch (error: unknown) {
+        console.error(
+            "Errore durante la lettura del carrello:",
+            error
+        );
+
+        return [];
+    }
+}
 
 export const useCartStore = defineStore("cart", () => {
-    const items = ref<CartItem[]>([]);
+    const items = ref<CartItem[]>(loadStoredCart());
 
     const totalItems = computed<number>(() => {
         return items.value.reduce(
@@ -16,9 +43,8 @@ export const useCartStore = defineStore("cart", () => {
 
     const totalPrice = computed<number>(() => {
         return items.value.reduce(
-            (total, item) => {
-                return total + item.product.price * item.quantity;
-            },
+            (total, item) =>
+                total + item.product.price * item.quantity,
             0
         );
     });
@@ -64,7 +90,7 @@ export const useCartStore = defineStore("cart", () => {
             return;
         }
 
-        if (item.quantity === 1) {
+        if (item.quantity <= 1) {
             removeItem(productId);
             return;
         }
@@ -81,6 +107,19 @@ export const useCartStore = defineStore("cart", () => {
     function clearCart(): void {
         items.value = [];
     }
+
+    watch(
+        items,
+        newItems => {
+            localStorage.setItem(
+                CART_STORAGE_KEY,
+                JSON.stringify(newItems)
+            );
+        },
+        {
+            deep: true
+        }
+    );
 
     return {
         items,
