@@ -3,32 +3,34 @@ import { httpClient } from "./httpClient";
 
 export const productService = {
     async getAll(): Promise<Product[]> {
-        const response = await httpClient.get<Product[]>("/products");
+        const { data } = await httpClient.get<Product[]>("/products");
 
-        return response.data;
+        return data;
     },
 
     async getById(id: number): Promise<Product> {
-        const response = await httpClient.get<Product>(
+        const { data } = await httpClient.get<Product>(
             `/products/${id}`
         );
 
-        return response.data;
+        return data;
     },
 
     async getCategories(): Promise<Category[]> {
-        const response = await httpClient.get<Category[]>(
+        const { data } = await httpClient.get<Category[]>(
             "/products/categories"
         );
 
-        return response.data;
+        return data;
     },
 
     async getByCategory(category: Category): Promise<Product[]> {
-        const response = await httpClient.get<Product[]>(
-            `/products/category/${encodeURIComponent(category)}`
+        const encodedCategory = encodeURIComponent(category);
+
+        const { data } = await httpClient.get<Product[]>(
+            `/products/category/${encodedCategory}`
         );
 
-        return response.data;
+        return data;
     }
 };
