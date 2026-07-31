@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
 import ErrorMessage from "../components/common/ErrorMessage.vue";
 import LoadingSpinner from "../components/common/LoadingSpinner.vue";
-
+import ToastNotification from "../components/common/ToastNotification.vue";
 import { productService } from "../services/productService";
 import type { Product } from "../types/product";
 
@@ -14,7 +14,10 @@ const cartStore = useCartStore();
 const product = ref<Product | null>(null);
 const isLoading = ref<boolean>(false);
 const errorMessage = ref<string | null>(null);
+const isAdded = ref<boolean>(false);
+const isToastVisible = ref<boolean>(false);
 
+let feedbackTimer: ReturnType<typeof setTimeout> | null = null;
 const productId = computed<number | null>(() => {
     const id = Number(route.params.id);
 
@@ -68,14 +71,32 @@ async function loadProduct(): Promise<void> {
         isLoading.value = false;
     }
 }
-
 function addToCart(): void {
     if (!product.value) {
         return;
     }
 
     cartStore.addItem(product.value);
+
+    isAdded.value = true;
+    isToastVisible.value = true;
+
+    if (feedbackTimer) {
+        clearTimeout(feedbackTimer);
+    }
+
+    feedbackTimer = setTimeout(() => {
+        isAdded.value = false;
+        isToastVisible.value = false;
+        feedbackTimer = null;
+    }, 2500);
 }
+
+onBeforeUnmount(() => {
+    if (feedbackTimer) {
+        clearTimeout(feedbackTimer);
+    }
+});
 
 watch(
     productId,
@@ -140,17 +161,27 @@ watch(
                         {{ formattedPrice }}
                     </p>
 
-                    <button class="add-to-cart-button" type="button" @click="addToCart">
-                        <i class="bi bi-cart-plus" aria-hidden="true"></i>
+                    <button class="add-to-cart-button" :class="{ added: isAdded }" type="button" @click="addToCart">
+                        <i class="bi" :class="isAdded ? 'bi-check-lg' : 'bi-cart-plus'" aria-hidden="true"></i>
 
-                        Aggiungi al carrello
+                        {{ isAdded ? "Aggiunto" : "Aggiungi al carrello" }}
                     </button>
                 </div>
             </div>
         </article>
+        <ToastNotification message="Prodotto aggiunto al carrello" :visible="isToastVisible" />
     </section>
+
 </template>
 <style scoped>
+
+.add-to-cart-button.added {
+    background-color: #16a34a;
+}
+
+.add-to-cart-button.added:hover {
+    background-color: #15803d;
+}
 .product-detail-view {
     width: 100%;
 }
