@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-
+import { useCartStore } from "../stores/cartStore";
 import ErrorMessage from "../components/common/ErrorMessage.vue";
 import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 
@@ -9,6 +9,7 @@ import { productService } from "../services/productService";
 import type { Product } from "../types/product";
 
 const route = useRoute();
+const cartStore = useCartStore();
 
 const product = ref<Product | null>(null);
 const isLoading = ref<boolean>(false);
@@ -73,10 +74,7 @@ function addToCart(): void {
         return;
     }
 
-    console.log(
-        "Prodotto da aggiungere al carrello:",
-        product.value
-    );
+    cartStore.addItem(product.value);
 }
 
 watch(
@@ -92,40 +90,20 @@ watch(
 
 <template>
     <section class="product-detail-view">
-        <RouterLink
-            :to="{ name: 'catalog' }"
-            class="back-link"
-        >
-            <i
-                class="bi bi-arrow-left"
-                aria-hidden="true"
-            ></i>
+        <RouterLink :to="{ name: 'catalog' }" class="back-link">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
 
             Torna al catalogo
         </RouterLink>
 
-        <LoadingSpinner
-            v-if="isLoading"
-            message="Caricamento prodotto..."
-        />
+        <LoadingSpinner v-if="isLoading" message="Caricamento prodotto..." />
 
-        <ErrorMessage
-            v-else-if="errorMessage"
-            :message="errorMessage"
-            @retry="loadProduct"
-        />
+        <ErrorMessage v-else-if="errorMessage" :message="errorMessage" @retry="loadProduct" />
 
-        <article
-            v-else-if="product"
-            class="product-detail"
-        >
+        <article v-else-if="product" class="product-detail">
             <div class="product-image-section">
                 <div class="product-image-wrapper">
-                    <img
-                        class="product-image"
-                        :src="product.image"
-                        :alt="product.title"
-                    />
+                    <img class="product-image" :src="product.image" :alt="product.title" />
                 </div>
             </div>
 
@@ -138,17 +116,10 @@ watch(
                     {{ product.title }}
                 </h1>
 
-                <div
-                    class="product-rating"
-                    :aria-label="
-                        `Valutazione ${product.rating.rate} su 5, basata su ${product.rating.count} recensioni`
-                    "
-                >
+                <div class="product-rating" :aria-label="`Valutazione ${product.rating.rate} su 5, basata su ${product.rating.count} recensioni`
+                    ">
                     <div class="rating-value">
-                        <i
-                            class="bi bi-star-fill"
-                            aria-hidden="true"
-                        ></i>
+                        <i class="bi bi-star-fill" aria-hidden="true"></i>
 
                         <span>
                             {{ product.rating.rate }}
@@ -169,15 +140,8 @@ watch(
                         {{ formattedPrice }}
                     </p>
 
-                    <button
-                        class="add-to-cart-button"
-                        type="button"
-                        @click="addToCart"
-                    >
-                        <i
-                            class="bi bi-cart-plus"
-                            aria-hidden="true"
-                        ></i>
+                    <button class="add-to-cart-button" type="button" @click="addToCart">
+                        <i class="bi bi-cart-plus" aria-hidden="true"></i>
 
                         Aggiungi al carrello
                     </button>
@@ -185,7 +149,8 @@ watch(
             </div>
         </article>
     </section>
-</template><style scoped>
+</template>
+<style scoped>
 .product-detail-view {
     width: 100%;
 }

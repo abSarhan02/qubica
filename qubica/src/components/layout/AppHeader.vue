@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-
+import { storeToRefs } from "pinia";
+import { useCartStore } from "../../stores/cartStore";
 import type { Category } from "../../types/product";
+
+const cartStore = useCartStore();
+const { totalItems } = storeToRefs(cartStore);
 
 const props = defineProps<{
     categories: Category[];
@@ -41,126 +45,72 @@ function isCategoryActive(category: Category): boolean {
 
 <template>
     <header class="header">
-        <nav
-            class="navbar container"
-            aria-label="Navigazione principale"
-        >
+        <nav class="navbar container" aria-label="Navigazione principale">
             <!-- Logo -->
-            <RouterLink
-                :to="{ name: 'catalog' }"
-                class="logo"
-                @click="closeMenu"
-            >
+            <RouterLink :to="{ name: 'catalog' }" class="logo" @click="closeMenu">
                 <h1>
                     V<span>i</span>trina
                 </h1>
             </RouterLink>
 
             <!-- Menu -->
-            <ul
-                id="main-navigation"
-                class="nav-links"
-                :class="{ open: isMenuOpen }"
-            >
+            <ul id="main-navigation" class="nav-links" :class="{ open: isMenuOpen }">
                 <li>
-                    <RouterLink
-                        :to="{ name: 'catalog' }"
-                        :class="{
-                            active: selectedCategory === null
-                        }"
-                        @click="closeMenu"
-                    >
+                    <RouterLink :to="{ name: 'catalog' }" :class="{
+                        active: selectedCategory === null
+                    }" @click="closeMenu">
                         Tutti i prodotti
                     </RouterLink>
                 </li>
 
-                <li
-                    v-for="category in props.categories"
-                    :key="category"
-                >
-                    <RouterLink
-                        :to="{
-                            name: 'catalog',
-                            query: {
-                                category
-                            }
-                        }"
-                        :class="{
+                <li v-for="category in props.categories" :key="category">
+                    <RouterLink :to="{
+                        name: 'catalog',
+                        query: {
+                            category
+                        }
+                    }" :class="{
                             active: isCategoryActive(category)
-                        }"
-                        @click="closeMenu"
-                    >
+                        }" @click="closeMenu">
                         {{ category }}
                     </RouterLink>
                 </li>
 
-                <li
-                    v-if="props.categoriesLoading"
-                    class="categories-loading"
-                >
+                <li v-if="props.categoriesLoading" class="categories-loading">
                     Caricamento categorie...
                 </li>
             </ul>
 
             <!-- Azioni -->
             <div class="header-actions">
-                <button
-                    class="icon-button"
-                    type="button"
-                    :aria-label="
-                        isDark
-                            ? 'Attiva tema chiaro'
-                            : 'Attiva tema scuro'
-                    "
-                    @click="toggleTheme"
-                >
-                    <i
-                        class="bi"
-                        :class="
-                            isDark
-                                ? 'bi-sun'
-                                : 'bi-moon'
-                        "
-                        aria-hidden="true"
-                    ></i>
+                <button class="icon-button" type="button" :aria-label="isDark
+                        ? 'Attiva tema chiaro'
+                        : 'Attiva tema scuro'
+                    " @click="toggleTheme">
+                    <i class="bi" :class="isDark
+                            ? 'bi-sun'
+                            : 'bi-moon'
+                        " aria-hidden="true"></i>
                 </button>
 
-                <button
-                    class="icon-button cart-button"
-                    type="button"
-                    aria-label="Apri carrello"
-                >
-                    <i
-                        class="bi bi-cart3"
-                        aria-hidden="true"
-                    ></i>
+                <RouterLink :to="{ name: 'cart' }" class="icon-button cart-button" aria-label="Apri carrello"
+                    @click="closeMenu">
+                    <i class="bi bi-cart3" aria-hidden="true"></i>
 
-                    <span class="cart-badge">
-                        0
+                    <span v-if="totalItems > 0" class="cart-badge">
+                        {{ totalItems }}
                     </span>
-                </button>
+                </RouterLink>
 
-                <button
-                    class="icon-button hamburger-button"
-                    type="button"
-                    aria-controls="main-navigation"
-                    :aria-expanded="isMenuOpen"
-                    :aria-label="
-                        isMenuOpen
+                <button class="icon-button hamburger-button" type="button" aria-controls="main-navigation"
+                    :aria-expanded="isMenuOpen" :aria-label="isMenuOpen
                             ? 'Chiudi menu'
                             : 'Apri menu'
-                    "
-                    @click="toggleMenu"
-                >
-                    <i
-                        class="bi"
-                        :class="
-                            isMenuOpen
-                                ? 'bi-x-lg'
-                                : 'bi-list'
-                        "
-                        aria-hidden="true"
-                    ></i>
+                        " @click="toggleMenu">
+                    <i class="bi" :class="isMenuOpen
+                            ? 'bi-x-lg'
+                            : 'bi-list'
+                        " aria-hidden="true"></i>
                 </button>
             </div>
         </nav>
