@@ -7,9 +7,12 @@ import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 import ToastNotification from "../components/common/ToastNotification.vue";
 import { productService } from "../services/productService";
 import type { Product } from "../types/product";
+import { useWishlistStore } from "../stores/wishListStore.ts";
 
 const route = useRoute();
 const cartStore = useCartStore();
+const wishlistStore = useWishlistStore();
+
 
 const product = ref<Product | null>(null);
 const isLoading = ref<boolean>(false);
@@ -28,6 +31,20 @@ const productId = computed<number | null>(() => {
     return id;
 });
 
+const isFavorite = computed<boolean>(() => {
+    if (!product.value) {
+        return false;
+    }
+
+    return wishlistStore.contains(product.value.id);
+});
+function toggleWishlist(): void {
+    if (!product.value) {
+        return;
+    }
+
+    wishlistStore.toggleProduct(product.value);
+}
 const formattedPrice = computed<string>(() => {
     if (!product.value) {
         return "";
@@ -160,7 +177,19 @@ watch(
                     <p class="product-price">
                         {{ formattedPrice }}
                     </p>
+                    <button class="wishlist-button" :class="{ active: isFavorite }" type="button"
+                        @click="toggleWishlist">
+                        <i class="bi" :class="isFavorite
+                            ? 'bi-heart-fill'
+                            : 'bi-heart'
+                            " aria-hidden="true"></i>
 
+                        {{
+                            isFavorite
+                                ? "Rimuovi dai preferiti"
+                                : "Aggiungi ai preferiti"
+                        }}
+                    </button>
                     <button class="add-to-cart-button" :class="{ added: isAdded }" type="button" @click="addToCart">
                         <i class="bi" :class="isAdded ? 'bi-check-lg' : 'bi-cart-plus'" aria-hidden="true"></i>
 
@@ -174,19 +203,14 @@ watch(
 
 </template>
 <style scoped>
+.product-detail-view {
+    width: 100%;
+}
 
 /* ==========================
    BACK LINK
 ========================== */
-.add-to-cart-button.added {
-    background-color: var(--color-success);
-    box-shadow: var(--shadow-sm);
-}
 
-.add-to-cart-button.added:hover {
-    background-color: var(--color-success-hover);
-    box-shadow: var(--shadow-md);
-}
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -400,7 +424,7 @@ watch(
     flex-direction: column;
     align-items: stretch;
 
-    gap: var(--space-lg);
+    gap: var(--space-md);
     margin-top: auto;
     padding-top: var(--space-xl);
 
@@ -408,7 +432,7 @@ watch(
 }
 
 .product-price {
-    margin: 0;
+    margin: 0 0 var(--space-sm);
 
     color: var(--color-text);
 
@@ -453,21 +477,91 @@ watch(
 }
 
 .add-to-cart-button:hover {
-    background-color: var(--color-primary-hover);
-
     transform: translateY(-2px);
 
+    background-color: var(--color-primary-hover);
     box-shadow: var(--shadow-md);
 }
 
 .add-to-cart-button:active {
     transform: translateY(0);
+
     box-shadow: var(--shadow-sm);
 }
 
 .add-to-cart-button:focus-visible {
     outline: 3px solid var(--color-focus);
     outline-offset: 3px;
+}
+
+/* Prodotto aggiunto */
+
+.add-to-cart-button.added {
+    background-color: var(--color-success);
+}
+
+.add-to-cart-button.added:hover {
+    background-color: var(--color-success-hover);
+}
+
+/* ==========================
+   WISHLIST BUTTON
+========================== */
+
+.wishlist-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 3.625rem;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+
+    background-color: transparent;
+    color: var(--color-text);
+
+    font-family: inherit;
+    font-size: var(--font-size-md);
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.wishlist-button:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--color-error);
+    background-color: var(--color-error-soft);
+    color: var(--color-error);
+}
+
+.wishlist-button.active {
+    border-color: var(--color-error);
+    background-color: var(--color-error-soft);
+    color: var(--color-error);
+}
+
+.wishlist-button:active {
+    transform: translateY(0);
+}
+
+.wishlist-button:focus-visible {
+    outline: 3px solid var(--color-error-focus);
+    outline-offset: 3px;
+}
+
+.wishlist-button i {
+    font-size: var(--font-size-lg);
 }
 
 /* ==========================
@@ -552,7 +646,7 @@ watch(
     }
 
     .purchase-section {
-        gap: var(--space-md);
+        gap: var(--space-sm);
         padding-top: var(--space-lg);
     }
 
@@ -560,8 +654,10 @@ watch(
         font-size: 2rem;
     }
 
-    .add-to-cart-button {
+    .add-to-cart-button,
+    .wishlist-button {
         min-height: 3.375rem;
+        padding-inline: var(--space-md);
     }
 }
 </style>

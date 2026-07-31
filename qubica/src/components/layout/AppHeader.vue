@@ -4,9 +4,14 @@ import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useCartStore } from "../../stores/cartStore";
 import type { Category } from "../../types/product";
-
+import { useWishlistStore } from "../../stores/wishListStore";
 const cartStore = useCartStore();
 const { totalItems } = storeToRefs(cartStore);
+const wishlistStore = useWishlistStore();
+
+const {
+    totalItems: wishlistTotalItems
+} = storeToRefs(wishlistStore);
 
 const props = defineProps<{
     categories: Category[];
@@ -70,8 +75,8 @@ function isCategoryActive(category: Category): boolean {
                             category
                         }
                     }" :class="{
-                            active: isCategoryActive(category)
-                        }" @click="closeMenu">
+                        active: isCategoryActive(category)
+                    }" @click="closeMenu">
                         {{ category }}
                     </RouterLink>
                 </li>
@@ -84,15 +89,22 @@ function isCategoryActive(category: Category): boolean {
             <!-- Azioni -->
             <div class="header-actions">
                 <button class="icon-button" type="button" :aria-label="isDark
-                        ? 'Attiva tema chiaro'
-                        : 'Attiva tema scuro'
+                    ? 'Attiva tema chiaro'
+                    : 'Attiva tema scuro'
                     " @click="toggleTheme">
                     <i class="bi" :class="isDark
-                            ? 'bi-sun'
-                            : 'bi-moon'
+                        ? 'bi-sun'
+                        : 'bi-moon'
                         " aria-hidden="true"></i>
                 </button>
+                <RouterLink :to="{ name: 'wishlist' }" class="icon-button wishlist-button" aria-label="Apri wishlist"
+                    @click="closeMenu">
+                    <i class="bi bi-heart" aria-hidden="true"></i>
 
+                    <span v-if="wishlistTotalItems > 0" class="cart-badge">
+                        {{ wishlistTotalItems }}
+                    </span>
+                </RouterLink>
                 <RouterLink :to="{ name: 'cart' }" class="icon-button cart-button" aria-label="Apri carrello"
                     @click="closeMenu">
                     <i class="bi bi-cart3" aria-hidden="true"></i>
@@ -104,12 +116,12 @@ function isCategoryActive(category: Category): boolean {
 
                 <button class="icon-button hamburger-button" type="button" aria-controls="main-navigation"
                     :aria-expanded="isMenuOpen" :aria-label="isMenuOpen
-                            ? 'Chiudi menu'
-                            : 'Apri menu'
+                        ? 'Chiudi menu'
+                        : 'Apri menu'
                         " @click="toggleMenu">
                     <i class="bi" :class="isMenuOpen
-                            ? 'bi-x-lg'
-                            : 'bi-list'
+                        ? 'bi-x-lg'
+                        : 'bi-list'
                         " aria-hidden="true"></i>
                 </button>
             </div>

@@ -7,6 +7,7 @@ import CartView from "../views/CartView.vue";
 import CatalogView from "../views/CatalogView.vue";
 import ProductDetailView from "../views/ProductDetailView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import WishlistView from "../views/WishListView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -23,6 +24,11 @@ const routes: RouteRecordRaw[] = [
     path: "/cart",
     name: "cart",
     component: CartView
+  },
+  {
+    path: "/wishlist",
+    name: "wishlist",
+    component: WishlistView
   },
   {
     path: "/:pathMatch(.*)*",

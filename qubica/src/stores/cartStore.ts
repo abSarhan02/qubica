@@ -4,35 +4,20 @@ import { defineStore } from "pinia";
 import type { CartItem } from "../types/cart";
 import type { Product } from "../types/product";
 
+import {
+    loadFromStorage,
+    saveToStorage
+} from "../utils/storage";
+
 const CART_STORAGE_KEY = "vitrina-cart";
 
-function loadStoredCart(): CartItem[] {
-    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-
-    if (!storedCart) {
-        return [];
-    }
-
-    try {
-        const parsedCart: unknown = JSON.parse(storedCart);
-
-        if (!Array.isArray(parsedCart)) {
-            return [];
-        }
-
-        return parsedCart as CartItem[];
-    } catch (error: unknown) {
-        console.error(
-            "Errore durante la lettura del carrello:",
-            error
-        );
-
-        return [];
-    }
-}
-
 export const useCartStore = defineStore("cart", () => {
-    const items = ref<CartItem[]>(loadStoredCart());
+    const items = ref<CartItem[]>(
+        loadFromStorage<CartItem[]>(
+            CART_STORAGE_KEY,
+            []
+        )
+    );
 
     const totalItems = computed<number>(() => {
         return items.value.reduce(
@@ -111,9 +96,9 @@ export const useCartStore = defineStore("cart", () => {
     watch(
         items,
         newItems => {
-            localStorage.setItem(
+            saveToStorage(
                 CART_STORAGE_KEY,
-                JSON.stringify(newItems)
+                newItems
             );
         },
         {
