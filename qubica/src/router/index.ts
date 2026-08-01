@@ -7,7 +7,7 @@ import {
 import CatalogView from "../views/CatalogView.vue";
 import ProductDetailView from "../views/ProductDetailView.vue";
 import CartView from "../views/CartView.vue";
-import WishlistView from "@/views/WishlistView.vue";
+import WishlistView from "../views/WishListView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 
 const routes: RouteRecordRaw[] = [
