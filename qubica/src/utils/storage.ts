@@ -31,7 +31,7 @@ export function saveToStorage<T>(
         );
     } catch (error: unknown) {
         console.error(
-            `Errore durante il salvataggio di "${key}" nel localStorage:`,
+            `Error while saving  "${key}" into localStorage:`,
             error
         );
     }

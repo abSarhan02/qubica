@@ -1,254 +1,266 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import type { Product } from "../../types/product";
 import { useWishlistStore } from "../../stores/wishListStore";
 
+import type { Product } from "../../types/product";
+
 const props = defineProps<{
-    product: Product;
+  product: Product;
 }>();
 
 const wishlistStore = useWishlistStore();
 
 const isFavorite = computed<boolean>(() => {
-    return wishlistStore.contains(props.product.id);
+  return wishlistStore.contains(props.product.id);
 });
 
 function toggleWishlist(): void {
-    wishlistStore.toggleProduct(props.product);
+  wishlistStore.toggleProduct(props.product);
 }
 </script>
 
 <template>
-    <article class="product-card">
-        <button class="wishlist-toggle" type="button" :class="{ active: isFavorite }" :aria-label="isFavorite
-                ? 'Rimuovi dai preferiti'
-                : 'Aggiungi ai preferiti'
-            " @click="toggleWishlist">
-            <i class="bi" :class="isFavorite
-                    ? 'bi-heart-fill'
-                    : 'bi-heart'
-                " aria-hidden="true"></i>
-        </button>
-        <RouterLink class="product-link" :to="{
-            name: 'product-detail',
-            params: {
-                id: product.id
-            }
-        }">
-            <div class="product-image-area">
-                <div class="product-image-box">
-                    <img class="product-image" :src="product.image" :alt="product.title" loading="lazy" />
-                </div>
-            </div>
+  <article class="product-card">
+    <button
+      class="wishlist-toggle"
+      type="button"
+      :class="{ active: isFavorite }"
+      :aria-label="
+        isFavorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai zzpreferiti'
+      "
+      @click="toggleWishlist"
+    >
+      <i
+        class="bi"
+        :class="isFavorite ? 'bi-heart-fill' : 'bi-heart'"
+        aria-hidden="true"
+      ></i>
+    </button>
 
-            <div class="product-content">
-                <p class="product-category">
-                    {{ product.category }}
-                </p>
+    <RouterLink
+      class="product-link"
+      :to="{
+        name: 'product-detail',
+        params: {
+          id: product.id,
+        },
+      }"
+    >
+      <div class="product-image-area">
+        <img
+          class="product-image"
+          :src="product.image"
+          :alt="product.title"
+          loading="lazy"
+        />
+      </div>
 
-                <h2 class="product-title">
-                    {{ product.title }}
-                </h2>
+      <div class="product-content">
+        <p class="product-category">
+          {{ product.category }}
+        </p>
 
-                <div class="product-footer">
-                    <p class="product-price">
-                        {{
-                            product.price.toLocaleString("it-IT", {
-                                style: "currency",
-                                currency: "EUR"
-                            })
-                        }}
-                    </p>
+        <h2 class="product-title">
+          {{ product.title }}
+        </h2>
 
-                    <div class="product-rating" :aria-label="`Valutazione ${product.rating.rate} su 5 stellle`">
-                        <i class="bi bi-star-fill" aria-hidden="true"></i>
+        <div class="product-footer">
+          <p class="product-price">
+            {{
+              product.price.toLocaleString("it-IT", {
+                style: "currency",
+                currency: "EUR",
+              })
+            }}
+          </p>
 
-                        <span class="rating-value">
-                            {{ product.rating.rate }}
-                        </span>
+          <div
+            class="product-rating"
+            :aria-label="`Valutazione ${product.rating.rate} su 5 stelle`"
+          >
+            <i class="bi bi-star-fill" aria-hidden="true"></i>
 
-                        <span class="rating-count">
-                            ({{ product.rating.count }})
-                        </span>
-                    </div>
-                </div>
+            <span class="rating-value">
+              {{ product.rating.rate }}
+            </span>
 
-                <span class="product-action">
-                    Scopri di più
+            <span class="rating-count">
+              {{ product.rating.count }}
+            </span>
+          </div>
+        </div>
 
-                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                </span>
-            </div>
-        </RouterLink>
-    </article>
+        <span class="product-action">
+          see more
+
+          <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </span>
+      </div>
+    </RouterLink>
+  </article>
 </template>
+
 <style scoped>
 .product-card {
-    position: relative;
+  position: relative;
 
-    height: 100%;
-    overflow: hidden;
+  height: 100%;
+  overflow: hidden;
 
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg);
 
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
 
-    transition:
-        transform var(--transition-fast),
-        border-color var(--transition-fast),
-        box-shadow var(--transition-fast);
+  transition:
+    transform var(--transition-medium),
+    box-shadow var(--transition-medium),
+    background-color var(--transition-medium);
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
+  transform: translateY(-6px);
 
-    border-color: var(--color-border-hover);
-    box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md);
 }
 
 .product-card:focus-within {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 3px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
 }
 
 /* ==========================
-   WISHLIST BUTTON
+   WISHLIST
 ========================== */
 
 .wishlist-toggle {
-    position: absolute;
-    top: var(--space-lg);
-    right: var(--space-lg);
-    z-index: 3;
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  z-index: 3;
 
-    display: grid;
-    place-items: center;
+  display: grid;
+  place-items: center;
 
-    width: 42px;
-    height: 42px;
-    padding: 0;
+  width: 42px;
+  height: 42px;
+  padding: 0;
 
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
+  border: 0;
+  border-radius: var(--radius-full);
 
-    background-color: var(--color-overlay-light);
-    color: var(--color-text);
+  background: var(--color-overlay-light);
+  color: var(--color-text-soft);
 
-    box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
 
-    cursor: pointer;
+  cursor: pointer;
 
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
-    transition:
-        color var(--transition-fast),
-        background-color var(--transition-fast),
-        border-color var(--transition-fast),
-        transform var(--transition-fast),
-        box-shadow var(--transition-fast);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .wishlist-toggle:hover {
-    transform: scale(1.08);
+  transform: scale(1.08);
 
-    border-color: var(--color-error);
-    background-color: var(--color-error-soft);
-    color: var(--color-error);
+  background: var(--color-error-soft);
+  color: var(--color-error);
 
-    box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 12%);
 }
 
 .wishlist-toggle:active {
-    transform: scale(0.96);
+  transform: scale(0.94);
 }
 
 .wishlist-toggle.active {
-    border-color: var(--color-error);
-    background-color: var(--color-error-soft);
-    color: var(--color-error);
+  background: var(--color-error-soft);
+  color: var(--color-error);
 }
 
 .wishlist-toggle:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 3px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
 }
 
 .wishlist-toggle i {
-    font-size: var(--font-size-lg);
+  font-size: var(--font-size-lg);
 }
 
 /* ==========================
-   PRODUCT LINK
+   LINK
 ========================== */
 
 .product-link {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    height: 100%;
+  height: 100%;
 
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* ==========================
-   IMAGE AREA
+   IMAGE
 ========================== */
 
 .product-image-area {
-    padding: var(--space-md) var(--space-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    background-color: var(--color-surface);
+  height: 17rem;
+  margin: var(--space-sm);
+  padding: var(--space-xl);
+
+  overflow: hidden;
+
+  border-radius: calc(var(--radius-lg) - 4px);
+
+  background: linear-gradient(
+    145deg,
+    var(--color-surface-secondary),
+    var(--color-background-alt)
+  );
+
+  transition:
+    background-color var(--transition-medium),
+    transform var(--transition-medium);
 }
 
-.product-image-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    height: 15rem;
-    padding: var(--space-xl);
-
-    overflow: hidden;
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-xs);
-
-    transition:
-        transform var(--transition-fast),
-        border-color var(--transition-fast),
-        box-shadow var(--transition-fast);
-}
-
-.product-card:hover .product-image-box {
-    transform: translateY(-2px);
-
-    border-color: var(--color-border-hover);
-    box-shadow: var(--shadow-sm);
+.product-card:hover .product-image-area {
+  transform: scale(0.99);
 }
 
 .product-image {
-    display: block;
+  display: block;
 
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 
-    object-fit: contain;
+  object-fit: contain;
 
-    transition: transform var(--transition-medium);
+  filter: drop-shadow(0 12px 16px rgb(0 0 0 / 8%));
+
+  transition:
+    transform var(--transition-medium),
+    filter var(--transition-medium);
 }
 
 .product-card:hover .product-image {
-    transform: scale(1.03);
+  transform: scale(1.045);
+
+  filter: drop-shadow(0 16px 22px rgb(0 0 0 / 12%));
 }
 
 /* ==========================
@@ -256,11 +268,11 @@ function toggleWishlist(): void {
 ========================== */
 
 .product-content {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 
-    padding: var(--space-lg);
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
 }
 
 /* ==========================
@@ -268,15 +280,15 @@ function toggleWishlist(): void {
 ========================== */
 
 .product-category {
-    margin: 0 0 var(--space-sm);
+  margin: 0 0 var(--space-sm);
 
-    color: var(--color-primary);
+  color: var(--color-primary);
 
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    line-height: 1.2;
-    text-transform: uppercase;
+  font-size: var(--font-size-xs);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: capitalize;
 }
 
 /* ==========================
@@ -284,27 +296,28 @@ function toggleWishlist(): void {
 ========================== */
 
 .product-title {
-    display: -webkit-box;
+  display: -webkit-box;
 
-    min-height: 3rem;
-    margin: 0 0 var(--space-md);
+  min-height: 3.2rem;
+  margin: 0 0 var(--space-lg);
 
-    overflow: hidden;
+  overflow: hidden;
 
-    color: var(--color-text);
+  color: var(--color-text);
 
-    font-size: var(--font-size-md);
-    font-weight: 700;
-    line-height: 1.5;
+  font-size: var(--font-size-md);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.55;
 
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 
-    transition: color var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .product-card:hover .product-title {
-    color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* ==========================
@@ -312,52 +325,55 @@ function toggleWishlist(): void {
 ========================== */
 
 .product-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    gap: var(--space-sm);
-    margin-top: auto;
+  gap: var(--space-md);
+  margin-top: auto;
 }
 
 .product-price {
-    margin: 0;
+  margin: 0;
 
-    color: var(--color-text);
+  color: var(--color-text);
 
-    font-size: var(--font-size-lg);
-    font-weight: 800;
-    letter-spacing: -0.03em;
+  font-size: var(--font-size-lg);
+  font-weight: 750;
+  letter-spacing: -0.035em;
 }
 
 .product-rating {
-    display: inline-flex;
-    align-items: center;
-    flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 
-    gap: var(--space-xs);
+  gap: 0.3rem;
 
-    color: var(--color-text-muted);
+  color: var(--color-text-muted);
 
-    font-size: var(--font-size-xs);
+  font-size: var(--font-size-xs);
 }
 
 .product-rating i {
-    color: var(--color-rating);
+  color: var(--color-rating);
 
-    font-size: var(--font-size-xs);
+  font-size: var(--font-size-xs);
 }
 
 .rating-value {
-    color: var(--color-text);
+  color: var(--color-text-soft);
 
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .rating-count {
-    color: var(--color-text-muted);
+  color: var(--color-text-light);
+}
 
-    font-size: var(--font-size-xs);
+.rating-count::before {
+  content: "·";
+  margin-right: 0.3rem;
 }
 
 /* ==========================
@@ -365,29 +381,33 @@ function toggleWishlist(): void {
 ========================== */
 
 .product-action {
-    display: inline-flex;
-    align-items: center;
+  display: inline-flex;
+  align-items: center;
 
-    width: fit-content;
-    gap: var(--space-sm);
-    margin-top: var(--space-lg);
+  width: fit-content;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
 
-    color: var(--color-primary);
+  color: var(--color-text-muted);
 
-    font-size: var(--font-size-xs);
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+
+  transition: color var(--transition-fast);
 }
 
 .product-action i {
-    font-size: var(--font-size-sm);
+  font-size: var(--font-size-sm);
 
-    transition: transform var(--transition-fast);
+  transition: transform var(--transition-fast);
+}
+
+.product-card:hover .product-action {
+  color: var(--color-primary);
 }
 
 .product-card:hover .product-action i {
-    transform: translateX(4px);
+  transform: translateX(5px);
 }
 
 /* ==========================
@@ -395,37 +415,39 @@ function toggleWishlist(): void {
 ========================== */
 
 @media (max-width: 576px) {
-    .wishlist-toggle {
-        top: var(--space-md);
-        right: var(--space-md);
+  .wishlist-toggle {
+    top: var(--space-md);
+    right: var(--space-md);
 
-        width: 38px;
-        height: 38px;
-    }
+    width: 40px;
+    height: 40px;
+  }
 
-    .product-image-area {
-        padding: var(--space-sm) var(--space-sm) 0;
-    }
+  .product-image-area {
+    height: 14rem;
+    padding: var(--space-lg);
+  }
 
-    .product-image-box {
-        height: 13.125rem;
-        padding: var(--space-lg);
-    }
+  .product-content {
+    padding: var(--space-md) var(--space-md) var(--space-lg);
+  }
 
-    .product-content {
-        padding: var(--space-md);
-    }
+  .product-title {
+    min-height: auto;
 
-    .product-title {
-        font-size: var(--font-size-sm);
-    }
+    font-size: var(--font-size-sm);
+  }
 
-    .product-price {
-        font-size: var(--font-size-md);
-    }
+  .product-price {
+    font-size: var(--font-size-md);
+  }
 
-    .rating-count {
-        display: none;
-    }
+  .rating-count {
+    display: none;
+  }
+
+  .product-action {
+    margin-top: var(--space-md);
+  }
 }
 </style>

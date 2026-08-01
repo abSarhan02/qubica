@@ -71,19 +71,19 @@ async function loadProduct(): Promise<void> {
         const result = await productService.getById(productId.value);
 
         if (!result || !result.id) {
-            errorMessage.value = "Il prodotto richiesto non è stato trovato.";
+            errorMessage.value = "product not found";
             return;
         }
 
         product.value = result;
     } catch (error: unknown) {
         console.error(
-            "Errore durante il caricamento del prodotto:",
+            "Error while getting the product:",
             error
         );
 
         errorMessage.value =
-            "Non è stato possibile caricare il prodotto. Controlla la connessione e riprova.";
+            "check your connection and try again.";
     } finally {
         isLoading.value = false;
     }
@@ -131,7 +131,7 @@ watch(
         <RouterLink :to="{ name: 'catalog' }" class="back-link">
             <i class="bi bi-arrow-left" aria-hidden="true"></i>
 
-            Torna al catalogo
+            Back to catalog
         </RouterLink>
 
         <LoadingSpinner v-if="isLoading" message="Caricamento prodotto..." />
@@ -165,7 +165,7 @@ watch(
                     </div>
 
                     <span class="rating-count">
-                        {{ product.rating.count }} recensioni
+                        {{ product.rating.count }} reviews
                     </span>
                 </div>
 

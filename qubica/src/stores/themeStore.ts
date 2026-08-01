@@ -1,27 +1,17 @@
 import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 
-import {
-    loadFromStorage,
-    saveToStorage
-} from "../utils/storage";
-
-export type Theme = "light" | "dark";
-
-const THEME_STORAGE_KEY = "vitrina-theme";
+type Theme = "light" | "dark";
 
 function getInitialTheme(): Theme {
-    const savedTheme = loadFromStorage<Theme | null>(
-        THEME_STORAGE_KEY,
-        null
-    );
+    const savedTheme = localStorage.getItem("vitrina-theme");
 
     if (savedTheme === "light" || savedTheme === "dark") {
         return savedTheme;
     }
 
     const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        "(prefers-color-scheme: light)"
     ).matches;
 
     return prefersDark ? "dark" : "light";
@@ -30,13 +20,9 @@ function getInitialTheme(): Theme {
 export const useThemeStore = defineStore("theme", () => {
     const theme = ref<Theme>(getInitialTheme());
 
-    const isDark = computed<boolean>(() => {
+    const isDark = computed(() => {
         return theme.value === "dark";
     });
-
-    function applyTheme(): void {
-        document.documentElement.dataset.theme = theme.value;
-    }
 
     function toggleTheme(): void {
         theme.value = isDark.value ? "light" : "dark";
@@ -44,12 +30,12 @@ export const useThemeStore = defineStore("theme", () => {
 
     watch(
         theme,
-        newTheme => {
-            applyTheme();
+        () => {
+            document.documentElement.dataset.theme = theme.value;
 
-            saveToStorage(
-                THEME_STORAGE_KEY,
-                newTheme
+            localStorage.setItem(
+                "vitrina-theme",
+                theme.value
             );
         },
         {

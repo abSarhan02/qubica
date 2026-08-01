@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import {
-    computed,
-    ref,
-    watch
-} from "vue";
-
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
+import HeroSection from "../components/home/HeroSection.vue";
 import ErrorMessage from "../components/common/ErrorMessage.vue";
 import LoadingSpinner from "../components/common/LoadingSpinner.vue";
 import ProductGrid from "../components/products/ProductGrid.vue";
@@ -21,31 +17,33 @@ import type {
 const route = useRoute();
 
 const products = ref<Product[]>([]);
-const isLoading = ref<boolean>(false);
+const isLoading = ref(false);
 const errorMessage = ref<string | null>(null);
 
 const selectedCategory = computed<Category | null>(() => {
     const category = route.query.category;
 
-    return typeof category === "string"
-        ? category
-        : null;
+    if (typeof category === "string") {
+        return category;
+    }
+
+    return null;
 });
 
-const pageTitle = computed<string>(() => {
+const pageTitle = computed(() => {
     if (!selectedCategory.value) {
-        return "Tutti i prodotti";
+        return "All products";
     }
 
     return selectedCategory.value;
 });
 
-const pageDescription = computed<string>(() => {
+const pageDescription = computed(() => {
     if (!selectedCategory.value) {
-        return "Scopri tutti i prodotti disponibili nel nostro negozio.";
+        return "Explore all the products available in our store.";
     }
 
-    return `Scopri i prodotti della categoria ${selectedCategory.value}.`;
+    return `Explore products from the ${selectedCategory.value} category.`;
 });
 
 async function loadProducts(): Promise<void> {
@@ -54,32 +52,38 @@ async function loadProducts(): Promise<void> {
 
     try {
         if (selectedCategory.value) {
-            products.value =
-                await productService.getByCategory(
-                    selectedCategory.value
-                );
+            products.value = await productService.getByCategory(
+                selectedCategory.value
+            );
         } else {
-            products.value =
-                await productService.getAll();
+            products.value = await productService.getAll();
         }
-    } catch (error: unknown) {
+    } catch (error) {
         console.error(
-            "Errore durante il caricamento dei prodotti:",
+            "Could not load products:",
             error
         );
 
         errorMessage.value =
-            "Non è stato possibile caricare i prodotti. Controlla la connessione e riprova.";
+            "The products could not be loaded. Please check your connection and try again.";
     } finally {
         isLoading.value = false;
     }
 }
 
+function scrollToProducts(): void {
+    const productsSection = document.getElementById("products");
+
+    if (productsSection) {
+        productsSection.scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+}
+
 watch(
     selectedCategory,
-    () => {
-        loadProducts();
-    },
+    loadProducts,
     {
         immediate: true
     }
@@ -87,7 +91,12 @@ watch(
 </script>
 
 <template>
-    <section class="catalog-view">
+    <HeroSection @explore="scrollToProducts" />
+
+    <section
+        id="products"
+        class="catalog-view"
+    >
         <div class="catalog-header">
             <div>
                 <p class="eyebrow">
@@ -108,17 +117,18 @@ watch(
                 class="product-count"
             >
                 {{ products.length }}
+
                 {{
                     products.length === 1
-                        ? "prodotto"
-                        : "prodotti"
+                        ? "product"
+                        : "products"
                 }}
             </p>
         </div>
 
         <LoadingSpinner
             v-if="isLoading"
-            message="Caricamento prodotti..."
+            message="Loading products..."
         />
 
         <ErrorMessage
@@ -137,6 +147,7 @@ watch(
 <style scoped>
 .catalog-view {
     width: 100%;
+    scroll-margin-top: 100px;
 }
 
 .catalog-header {
@@ -201,7 +212,8 @@ watch(
     white-space: nowrap;
 }
 
-@media (max-width: 650px) {
+/* MOBILE */
+@media (max-width: 576px) {
     .catalog-header {
         flex-direction: column;
         align-items: flex-start;

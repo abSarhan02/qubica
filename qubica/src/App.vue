@@ -2,31 +2,27 @@
 import { onMounted, ref } from "vue";
 
 import AppHeader from "./components/layout/AppHeader.vue";
+import AppFooter from "./components/layout/AppFooter.vue";
 
 import { productService } from "./services/productService";
 import type { Category } from "./types/product";
 
 const categories = ref<Category[]>([]);
-const categoriesLoading = ref<boolean>(false);
+const categoriesLoading = ref(false);
 
 async function loadCategories(): Promise<void> {
     categoriesLoading.value = true;
 
     try {
         categories.value = await productService.getCategories();
-    } catch (error: unknown) {
-        console.error(
-            "Errore durante il caricamento delle categorie:",
-            error
-        );
+    } catch (error) {
+        console.error("Could not load categories:", error);
     } finally {
         categoriesLoading.value = false;
     }
 }
 
-onMounted(() => {
-    loadCategories();
-});
+onMounted(loadCategories);
 </script>
 
 <template>
@@ -39,11 +35,20 @@ onMounted(() => {
         <main class="main-content container">
             <RouterView />
         </main>
+
+        <AppFooter />
     </div>
 </template>
 
 <style scoped>
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .main-content {
-    padding-block: 3rem;
+    flex: 1;
+    padding-block: var(--space-xl);
 }
 </style>

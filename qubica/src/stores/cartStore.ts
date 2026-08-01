@@ -4,37 +4,30 @@ import { defineStore } from "pinia";
 import type { CartItem } from "../types/cart";
 import type { Product } from "../types/product";
 
-import {
-    loadFromStorage,
-    saveToStorage
-} from "../utils/storage";
-
-const CART_STORAGE_KEY = "vitrina-cart";
-
 export const useCartStore = defineStore("cart", () => {
+    const savedCart = localStorage.getItem("vitrina-cart");
+
     const items = ref<CartItem[]>(
-        loadFromStorage<CartItem[]>(
-            CART_STORAGE_KEY,
-            []
-        )
+        savedCart ? JSON.parse(savedCart) : []
     );
 
-    const totalItems = computed<number>(() => {
+    const totalItems = computed(() => {
         return items.value.reduce(
             (total, item) => total + item.quantity,
             0
         );
     });
 
-    const totalPrice = computed<number>(() => {
+    const totalPrice = computed(() => {
         return items.value.reduce(
-            (total, item) =>
-                total + item.product.price * item.quantity,
+            (total, item) => {
+                return total + item.product.price * item.quantity;
+            },
             0
         );
     });
 
-    const isEmpty = computed<boolean>(() => {
+    const isEmpty = computed(() => {
         return items.value.length === 0;
     });
 
@@ -45,13 +38,12 @@ export const useCartStore = defineStore("cart", () => {
 
         if (existingItem) {
             existingItem.quantity++;
-            return;
+        } else {
+            items.value.push({
+                product,
+                quantity: 1
+            });
         }
-
-        items.value.push({
-            product,
-            quantity: 1
-        });
     }
 
     function increaseQuantity(productId: number): void {
@@ -59,11 +51,9 @@ export const useCartStore = defineStore("cart", () => {
             item => item.product.id === productId
         );
 
-        if (!item) {
-            return;
+        if (item) {
+            item.quantity++;
         }
-
-        item.quantity++;
     }
 
     function decreaseQuantity(productId: number): void {
@@ -75,12 +65,11 @@ export const useCartStore = defineStore("cart", () => {
             return;
         }
 
-        if (item.quantity <= 1) {
+        if (item.quantity === 1) {
             removeItem(productId);
-            return;
+        } else {
+            item.quantity--;
         }
-
-        item.quantity--;
     }
 
     function removeItem(productId: number): void {
@@ -95,10 +84,10 @@ export const useCartStore = defineStore("cart", () => {
 
     watch(
         items,
-        newItems => {
-            saveToStorage(
-                CART_STORAGE_KEY,
-                newItems
+        () => {
+            localStorage.setItem(
+                "vitrina-cart",
+                JSON.stringify(items.value)
             );
         },
         {
