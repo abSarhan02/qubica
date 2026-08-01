@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-
+import { useCartStore } from "../stores/cartStore";
 import ErrorMessage from "../components/common/ErrorMessage.vue";
 import LoadingSpinner from "../components/common/LoadingSpinner.vue";
-
+import ToastNotification from "../components/common/ToastNotification.vue";
 import { productService } from "../services/productService";
 import type { Product } from "../types/product";
+import { useWishlistStore } from "../stores/wishListStore.ts";
 
 const route = useRoute();
+const cartStore = useCartStore();
+const wishlistStore = useWishlistStore();
+
 
 const product = ref<Product | null>(null);
 const isLoading = ref<boolean>(false);
 const errorMessage = ref<string | null>(null);
+const isAdded = ref<boolean>(false);
+const isToastVisible = ref<boolean>(false);
 
+let feedbackTimer: ReturnType<typeof setTimeout> | null = null;
 const productId = computed<number | null>(() => {
     const id = Number(route.params.id);
 
@@ -24,6 +31,20 @@ const productId = computed<number | null>(() => {
     return id;
 });
 
+const isFavorite = computed<boolean>(() => {
+    if (!product.value) {
+        return false;
+    }
+
+    return wishlistStore.contains(product.value.id);
+});
+function toggleWishlist(): void {
+    if (!product.value) {
+        return;
+    }
+
+    wishlistStore.toggleProduct(product.value);
+}
 const formattedPrice = computed<string>(() => {
     if (!product.value) {
         return "";
@@ -67,17 +88,32 @@ async function loadProduct(): Promise<void> {
         isLoading.value = false;
     }
 }
-
 function addToCart(): void {
     if (!product.value) {
         return;
     }
 
-    console.log(
-        "Prodotto da aggiungere al carrello:",
-        product.value
-    );
+    cartStore.addItem(product.value);
+
+    isAdded.value = true;
+    isToastVisible.value = true;
+
+    if (feedbackTimer) {
+        clearTimeout(feedbackTimer);
+    }
+
+    feedbackTimer = setTimeout(() => {
+        isAdded.value = false;
+        isToastVisible.value = false;
+        feedbackTimer = null;
+    }, 2500);
 }
+
+onBeforeUnmount(() => {
+    if (feedbackTimer) {
+        clearTimeout(feedbackTimer);
+    }
+});
 
 watch(
     productId,
@@ -92,40 +128,20 @@ watch(
 
 <template>
     <section class="product-detail-view">
-        <RouterLink
-            :to="{ name: 'catalog' }"
-            class="back-link"
-        >
-            <i
-                class="bi bi-arrow-left"
-                aria-hidden="true"
-            ></i>
+        <RouterLink :to="{ name: 'catalog' }" class="back-link">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
 
             Torna al catalogo
         </RouterLink>
 
-        <LoadingSpinner
-            v-if="isLoading"
-            message="Caricamento prodotto..."
-        />
+        <LoadingSpinner v-if="isLoading" message="Caricamento prodotto..." />
 
-        <ErrorMessage
-            v-else-if="errorMessage"
-            :message="errorMessage"
-            @retry="loadProduct"
-        />
+        <ErrorMessage v-else-if="errorMessage" :message="errorMessage" @retry="loadProduct" />
 
-        <article
-            v-else-if="product"
-            class="product-detail"
-        >
+        <article v-else-if="product" class="product-detail">
             <div class="product-image-section">
                 <div class="product-image-wrapper">
-                    <img
-                        class="product-image"
-                        :src="product.image"
-                        :alt="product.title"
-                    />
+                    <img class="product-image" :src="product.image" :alt="product.title" />
                 </div>
             </div>
 
@@ -138,17 +154,10 @@ watch(
                     {{ product.title }}
                 </h1>
 
-                <div
-                    class="product-rating"
-                    :aria-label="
-                        `Valutazione ${product.rating.rate} su 5, basata su ${product.rating.count} recensioni`
-                    "
-                >
+                <div class="product-rating" :aria-label="`Valutazione ${product.rating.rate} su 5, basata su ${product.rating.count} recensioni`
+                    ">
                     <div class="rating-value">
-                        <i
-                            class="bi bi-star-fill"
-                            aria-hidden="true"
-                        ></i>
+                        <i class="bi bi-star-fill" aria-hidden="true"></i>
 
                         <span>
                             {{ product.rating.rate }}
@@ -168,24 +177,32 @@ watch(
                     <p class="product-price">
                         {{ formattedPrice }}
                     </p>
+                    <button class="wishlist-button" :class="{ active: isFavorite }" type="button"
+                        @click="toggleWishlist">
+                        <i class="bi" :class="isFavorite
+                            ? 'bi-heart-fill'
+                            : 'bi-heart'
+                            " aria-hidden="true"></i>
 
-                    <button
-                        class="add-to-cart-button"
-                        type="button"
-                        @click="addToCart"
-                    >
-                        <i
-                            class="bi bi-cart-plus"
-                            aria-hidden="true"
-                        ></i>
+                        {{
+                            isFavorite
+                                ? "Rimuovi dai preferiti"
+                                : "Aggiungi ai preferiti"
+                        }}
+                    </button>
+                    <button class="add-to-cart-button" :class="{ added: isAdded }" type="button" @click="addToCart">
+                        <i class="bi" :class="isAdded ? 'bi-check-lg' : 'bi-cart-plus'" aria-hidden="true"></i>
 
-                        Aggiungi al carrello
+                        {{ isAdded ? "Aggiunto" : "Aggiungi al carrello" }}
                     </button>
                 </div>
             </div>
         </article>
+        <ToastNotification message="Prodotto aggiunto al carrello" :visible="isToastVisible" />
     </section>
-</template><style scoped>
+
+</template>
+<style scoped>
 .product-detail-view {
     width: 100%;
 }
@@ -407,7 +424,7 @@ watch(
     flex-direction: column;
     align-items: stretch;
 
-    gap: var(--space-lg);
+    gap: var(--space-md);
     margin-top: auto;
     padding-top: var(--space-xl);
 
@@ -415,7 +432,7 @@ watch(
 }
 
 .product-price {
-    margin: 0;
+    margin: 0 0 var(--space-sm);
 
     color: var(--color-text);
 
@@ -460,21 +477,91 @@ watch(
 }
 
 .add-to-cart-button:hover {
-    background-color: var(--color-primary-hover);
-
     transform: translateY(-2px);
 
+    background-color: var(--color-primary-hover);
     box-shadow: var(--shadow-md);
 }
 
 .add-to-cart-button:active {
     transform: translateY(0);
+
     box-shadow: var(--shadow-sm);
 }
 
 .add-to-cart-button:focus-visible {
     outline: 3px solid var(--color-focus);
     outline-offset: 3px;
+}
+
+/* Prodotto aggiunto */
+
+.add-to-cart-button.added {
+    background-color: var(--color-success);
+}
+
+.add-to-cart-button.added:hover {
+    background-color: var(--color-success-hover);
+}
+
+/* ==========================
+   WISHLIST BUTTON
+========================== */
+
+.wishlist-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 3.625rem;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+
+    background-color: transparent;
+    color: var(--color-text);
+
+    font-family: inherit;
+    font-size: var(--font-size-md);
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition-fast),
+        border-color var(--transition-fast),
+        background-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.wishlist-button:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--color-error);
+    background-color: var(--color-error-soft);
+    color: var(--color-error);
+}
+
+.wishlist-button.active {
+    border-color: var(--color-error);
+    background-color: var(--color-error-soft);
+    color: var(--color-error);
+}
+
+.wishlist-button:active {
+    transform: translateY(0);
+}
+
+.wishlist-button:focus-visible {
+    outline: 3px solid var(--color-error-focus);
+    outline-offset: 3px;
+}
+
+.wishlist-button i {
+    font-size: var(--font-size-lg);
 }
 
 /* ==========================
@@ -559,7 +646,7 @@ watch(
     }
 
     .purchase-section {
-        gap: var(--space-md);
+        gap: var(--space-sm);
         padding-top: var(--space-lg);
     }
 
@@ -567,8 +654,10 @@ watch(
         font-size: 2rem;
     }
 
-    .add-to-cart-button {
+    .add-to-cart-button,
+    .wishlist-button {
         min-height: 3.375rem;
+        padding-inline: var(--space-md);
     }
 }
 </style>

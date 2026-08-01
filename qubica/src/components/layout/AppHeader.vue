@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import {
+    computed,
+    ref
+} from "vue";
+
+import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
+
+import { useCartStore } from "../../stores/cartStore";
+import { useThemeStore } from "../../stores/themeStore";
+import { useWishlistStore } from "../../stores/wishListStore";
 
 import type { Category } from "../../types/product";
 
@@ -11,8 +20,23 @@ const props = defineProps<{
 
 const route = useRoute();
 
+const cartStore = useCartStore();
+const wishlistStore = useWishlistStore();
+const themeStore = useThemeStore();
+
+const {
+    totalItems
+} = storeToRefs(cartStore);
+
+const {
+    totalItems: wishlistTotalItems
+} = storeToRefs(wishlistStore);
+
+const {
+    isDark
+} = storeToRefs(themeStore);
+
 const isMenuOpen = ref<boolean>(false);
-const isDark = ref<boolean>(false);
 
 const selectedCategory = computed<string | null>(() => {
     const category = route.query.category;
@@ -30,10 +54,6 @@ function closeMenu(): void {
     isMenuOpen.value = false;
 }
 
-function toggleTheme(): void {
-    isDark.value = !isDark.value;
-}
-
 function isCategoryActive(category: Category): boolean {
     return selectedCategory.value === category;
 }
@@ -41,126 +61,77 @@ function isCategoryActive(category: Category): boolean {
 
 <template>
     <header class="header">
-        <nav
-            class="navbar container"
-            aria-label="Navigazione principale"
-        >
-            <!-- Logo -->
-            <RouterLink
-                :to="{ name: 'catalog' }"
-                class="logo"
-                @click="closeMenu"
-            >
-                <h1>
-                    V<span>i</span>trina
-                </h1>
+        <nav class="navbar container" aria-label="Navigazione principale">
+            <RouterLink :to="{ name: 'catalog' }" class="logo" aria-label="Vai al catalogo" @click="closeMenu">
+                <span class="logo-text">
+                    V<span class="logo-accent">i</span>trina
+                </span>
             </RouterLink>
 
-            <!-- Menu -->
-            <ul
-                id="main-navigation"
-                class="nav-links"
-                :class="{ open: isMenuOpen }"
-            >
+            <ul id="main-navigation" class="nav-links" :class="{ open: isMenuOpen }">
                 <li>
-                    <RouterLink
-                        :to="{ name: 'catalog' }"
-                        :class="{
-                            active: selectedCategory === null
-                        }"
-                        @click="closeMenu"
-                    >
+                    <RouterLink :to="{ name: 'catalog' }" :class="{
+                        active: selectedCategory === null
+                    }" @click="closeMenu">
                         Tutti i prodotti
                     </RouterLink>
                 </li>
 
-                <li
-                    v-for="category in props.categories"
-                    :key="category"
-                >
-                    <RouterLink
-                        :to="{
-                            name: 'catalog',
-                            query: {
-                                category
-                            }
-                        }"
-                        :class="{
+                <li v-for="category in props.categories" :key="category">
+                    <RouterLink :to="{
+                        name: 'catalog',
+                        query: {
+                            category
+                        }
+                    }" :class="{
                             active: isCategoryActive(category)
-                        }"
-                        @click="closeMenu"
-                    >
+                        }" @click="closeMenu">
                         {{ category }}
                     </RouterLink>
                 </li>
 
-                <li
-                    v-if="props.categoriesLoading"
-                    class="categories-loading"
-                >
+                <li v-if="props.categoriesLoading" class="categories-loading">
                     Caricamento categorie...
                 </li>
             </ul>
 
-            <!-- Azioni -->
             <div class="header-actions">
-                <button
-                    class="icon-button"
-                    type="button"
-                    :aria-label="
-                        isDark
-                            ? 'Attiva tema chiaro'
-                            : 'Attiva tema scuro'
-                    "
-                    @click="toggleTheme"
-                >
-                    <i
-                        class="bi"
-                        :class="
-                            isDark
-                                ? 'bi-sun'
-                                : 'bi-moon'
-                        "
-                        aria-hidden="true"
-                    ></i>
+                <button class="icon-button" type="button" :aria-label="isDark
+                        ? 'Attiva tema chiaro'
+                        : 'Attiva tema scuro'
+                    " @click="themeStore.toggleTheme">
+                    <i class="bi" :class="isDark
+                            ? 'bi-sun'
+                            : 'bi-moon'
+                        " aria-hidden="true"></i>
                 </button>
 
-                <button
-                    class="icon-button cart-button"
-                    type="button"
-                    aria-label="Apri carrello"
-                >
-                    <i
-                        class="bi bi-cart3"
-                        aria-hidden="true"
-                    ></i>
+                <RouterLink :to="{ name: 'wishlist' }" class="icon-button" aria-label="Apri preferiti"
+                    @click="closeMenu">
+                    <i class="bi bi-heart" aria-hidden="true"></i>
 
-                    <span class="cart-badge">
-                        0
+                    <span v-if="wishlistTotalItems > 0" class="action-badge">
+                        {{ wishlistTotalItems }}
                     </span>
-                </button>
+                </RouterLink>
 
-                <button
-                    class="icon-button hamburger-button"
-                    type="button"
-                    aria-controls="main-navigation"
-                    :aria-expanded="isMenuOpen"
-                    :aria-label="
-                        isMenuOpen
+                <RouterLink :to="{ name: 'cart' }" class="icon-button" aria-label="Apri carrello" @click="closeMenu">
+                    <i class="bi bi-cart3" aria-hidden="true"></i>
+
+                    <span v-if="totalItems > 0" class="action-badge">
+                        {{ totalItems }}
+                    </span>
+                </RouterLink>
+
+                <button class="icon-button hamburger-button" type="button" aria-controls="main-navigation"
+                    :aria-expanded="isMenuOpen" :aria-label="isMenuOpen
                             ? 'Chiudi menu'
                             : 'Apri menu'
-                    "
-                    @click="toggleMenu"
-                >
-                    <i
-                        class="bi"
-                        :class="
-                            isMenuOpen
-                                ? 'bi-x-lg'
-                                : 'bi-list'
-                        "
-                        aria-hidden="true"
-                    ></i>
+                        " @click="toggleMenu">
+                    <i class="bi" :class="isMenuOpen
+                            ? 'bi-x-lg'
+                            : 'bi-list'
+                        " aria-hidden="true"></i>
                 </button>
             </div>
         </nav>
@@ -175,9 +146,18 @@ function isCategoryActive(category: Category): boolean {
 
     width: 100%;
 
-    background-color: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
+
+    background-color: var(--color-overlay-light);
+    box-shadow: var(--shadow-xs);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 }
+
+/* ==========================
+   NAVBAR
+========================== */
 
 .navbar {
     position: relative;
@@ -186,30 +166,63 @@ function isCategoryActive(category: Category): boolean {
     align-items: center;
     justify-content: space-between;
 
-    min-height: 72px;
-    gap: 2rem;
+    min-height: 4.5rem;
+    gap: var(--space-xl);
 }
+
+/* ==========================
+   LOGO
+========================== */
 
 .logo {
+    display: inline-flex;
+    align-items: center;
     flex-shrink: 0;
+
     color: var(--color-text);
+    text-decoration: none;
+
+    transition:
+        color var(--transition-fast),
+        transform var(--transition-fast);
 }
 
-.logo h1 {
-    margin: 0;
+.logo:hover {
+    transform: translateY(-1px);
+}
+
+.logo:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 4px;
+
+    border-radius: var(--radius-sm);
+}
+
+.logo-text {
     font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    line-height: 1;
 }
 
-.logo span {
+.logo-accent {
     color: var(--color-primary);
 }
+
+/* ==========================
+   NAVIGATION LINKS
+========================== */
 
 .nav-links {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    gap: 1.5rem;
+    gap: var(--space-lg);
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
 }
 
 .nav-links a {
@@ -217,12 +230,13 @@ function isCategoryActive(category: Category): boolean {
 
     display: block;
 
-    padding-block: 0.5rem;
+    padding-block: var(--space-sm);
 
     color: var(--color-text-muted);
+    text-decoration: none;
 
-    font-size: 0.95rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
     text-transform: capitalize;
     white-space: nowrap;
 
@@ -239,6 +253,8 @@ function isCategoryActive(category: Category): boolean {
 
     height: 2px;
 
+    border-radius: var(--radius-full);
+
     background-color: var(--color-primary);
 
     transform: scaleX(0);
@@ -253,24 +269,38 @@ function isCategoryActive(category: Category): boolean {
 }
 
 .nav-links a.active {
-    font-weight: 700;
+    font-weight: 800;
 }
 
+.nav-links a:hover::after,
 .nav-links a.active::after {
     transform: scaleX(1);
 }
 
+.nav-links a:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 4px;
+
+    border-radius: var(--radius-sm);
+}
+
 .categories-loading {
     color: var(--color-text-muted);
-    font-size: 0.85rem;
+
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
 }
+
+/* ==========================
+   HEADER ACTIONS
+========================== */
 
 .header-actions {
     display: flex;
     flex-shrink: 0;
     align-items: center;
 
-    gap: 0.4rem;
+    gap: var(--space-xs);
 }
 
 .icon-button {
@@ -283,55 +313,86 @@ function isCategoryActive(category: Category): boolean {
     height: 42px;
     padding: 0;
 
+    border: 1px solid transparent;
     border-radius: var(--radius-full);
 
-    color: var(--color-text);
     background-color: transparent;
+    color: var(--color-text);
 
+    text-decoration: none;
     cursor: pointer;
 
     transition:
         color var(--transition-fast),
-        background-color var(--transition-fast);
+        border-color var(--transition-fast),
+        background-color var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 .icon-button:hover {
+    transform: translateY(-1px);
+
+    border-color: var(--color-border);
+    background-color: var(--color-primary-soft);
     color: var(--color-primary);
-    background-color: var(--color-background);
+}
+
+.icon-button:active {
+    transform: translateY(0);
+}
+
+.icon-button:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
 }
 
 .icon-button i {
-    font-size: 1.2rem;
+    font-size: var(--font-size-lg);
+    line-height: 1;
 }
 
-.cart-badge {
+/* ==========================
+   BADGE
+========================== */
+
+.action-badge {
     position: absolute;
-    top: -1px;
-    right: -1px;
+    top: -2px;
+    right: -2px;
 
     display: grid;
     place-items: center;
 
     min-width: 18px;
     height: 18px;
-    padding-inline: 4px;
+    padding-inline: var(--space-xs);
 
+    border: 2px solid var(--color-surface);
     border-radius: var(--radius-full);
 
-    color: #ffffff;
     background-color: var(--color-primary);
+    color: var(--color-text-inverse);
 
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.65rem;
+    font-weight: 800;
+    line-height: 1;
 }
+
+/* ==========================
+   HAMBURGER
+========================== */
 
 .hamburger-button {
     display: none;
 }
 
+/* ==========================
+   TABLET AND MOBILE MENU
+========================== */
+
 @media (max-width: 1050px) {
     .navbar {
-        min-height: 64px;
+        min-height: 4rem;
     }
 
     .hamburger-button {
@@ -340,7 +401,7 @@ function isCategoryActive(category: Category): boolean {
 
     .nav-links {
         position: absolute;
-        top: 100%;
+        top: calc(100% + 1px);
         right: 0;
         left: 0;
 
@@ -348,16 +409,20 @@ function isCategoryActive(category: Category): boolean {
         flex-direction: column;
         align-items: stretch;
 
-        max-height: calc(100vh - 64px);
-        padding: 1rem;
-        gap: 0;
+        max-height: calc(100vh - 4rem);
+        gap: var(--space-xs);
+        margin: 0;
+        padding: var(--space-md);
 
         overflow-y: auto;
 
+        border: 1px solid var(--color-border);
+        border-top: 0;
+        border-radius:
+            0 0 var(--radius-lg) var(--radius-lg);
+
         background-color: var(--color-surface);
-        border-top: 1px solid var(--color-border);
-        border-bottom: 1px solid var(--color-border);
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--shadow-md);
     }
 
     .nav-links.open {
@@ -370,7 +435,7 @@ function isCategoryActive(category: Category): boolean {
 
     .nav-links a {
         width: 100%;
-        padding: 0.9rem 1rem;
+        padding: 0.9rem var(--space-md);
 
         border-radius: var(--radius-md);
     }
@@ -381,26 +446,60 @@ function isCategoryActive(category: Category): boolean {
 
     .nav-links a:hover,
     .nav-links a.active {
-        background-color: var(--color-background);
+        background-color: var(--color-primary-soft);
+        color: var(--color-primary);
     }
 
     .categories-loading {
-        padding: 0.9rem 1rem;
+        padding: 0.9rem var(--space-md);
     }
 }
 
+/* ==========================
+   MOBILE
+========================== */
+
 @media (max-width: 480px) {
     .navbar {
-        gap: 0.5rem;
+        gap: var(--space-sm);
     }
 
-    .logo h1 {
-        font-size: 1.6rem;
+    .logo-text {
+        font-size: 1.65rem;
+    }
+
+    .header-actions {
+        gap: 0;
     }
 
     .icon-button {
         width: 38px;
         height: 38px;
+    }
+
+    .icon-button i {
+        font-size: var(--font-size-md);
+    }
+
+    .action-badge {
+        min-width: 17px;
+        height: 17px;
+
+        font-size: 0.6rem;
+    }
+
+    .nav-links {
+        right: calc(var(--container-padding) * -1);
+        left: calc(var(--container-padding) * -1);
+
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+        background-color: var(--color-surface-secondary);
     }
 }
 </style>

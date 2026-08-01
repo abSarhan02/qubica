@@ -1,13 +1,35 @@
 <script setup lang="ts">
-import type { Product } from "../../types/product";
+import { computed } from "vue";
 
-defineProps<{
+import type { Product } from "../../types/product";
+import { useWishlistStore } from "../../stores/wishListStore";
+
+const props = defineProps<{
     product: Product;
 }>();
+
+const wishlistStore = useWishlistStore();
+
+const isFavorite = computed<boolean>(() => {
+    return wishlistStore.contains(props.product.id);
+});
+
+function toggleWishlist(): void {
+    wishlistStore.toggleProduct(props.product);
+}
 </script>
 
 <template>
     <article class="product-card">
+        <button class="wishlist-toggle" type="button" :class="{ active: isFavorite }" :aria-label="isFavorite
+                ? 'Rimuovi dai preferiti'
+                : 'Aggiungi ai preferiti'
+            " @click="toggleWishlist">
+            <i class="bi" :class="isFavorite
+                    ? 'bi-heart-fill'
+                    : 'bi-heart'
+                " aria-hidden="true"></i>
+        </button>
         <RouterLink class="product-link" :to="{
             name: 'product-detail',
             params: {
@@ -61,9 +83,10 @@ defineProps<{
         </RouterLink>
     </article>
 </template>
-
 <style scoped>
 .product-card {
+    position: relative;
+
     height: 100%;
     overflow: hidden;
 
@@ -75,8 +98,8 @@ defineProps<{
 
     transition:
         transform var(--transition-fast),
-        box-shadow var(--transition-fast),
-        border-color var(--transition-fast);
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
 .product-card:hover {
@@ -90,6 +113,77 @@ defineProps<{
     outline: 3px solid var(--color-focus);
     outline-offset: 3px;
 }
+
+/* ==========================
+   WISHLIST BUTTON
+========================== */
+
+.wishlist-toggle {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+
+    width: 42px;
+    height: 42px;
+    padding: 0;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+
+    background-color: var(--color-overlay-light);
+    color: var(--color-text);
+
+    box-shadow: var(--shadow-sm);
+
+    cursor: pointer;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.wishlist-toggle:hover {
+    transform: scale(1.08);
+
+    border-color: var(--color-error);
+    background-color: var(--color-error-soft);
+    color: var(--color-error);
+
+    box-shadow: var(--shadow-md);
+}
+
+.wishlist-toggle:active {
+    transform: scale(0.96);
+}
+
+.wishlist-toggle.active {
+    border-color: var(--color-error);
+    background-color: var(--color-error-soft);
+    color: var(--color-error);
+}
+
+.wishlist-toggle:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.wishlist-toggle i {
+    font-size: var(--font-size-lg);
+}
+
+/* ==========================
+   PRODUCT LINK
+========================== */
 
 .product-link {
     display: flex;
@@ -106,7 +200,7 @@ defineProps<{
 ========================== */
 
 .product-image-area {
-    padding: 1rem 1rem 0;
+    padding: var(--space-md) var(--space-md) 0;
 
     background-color: var(--color-surface);
 }
@@ -116,34 +210,28 @@ defineProps<{
     align-items: center;
     justify-content: center;
 
-    height: 240px;
-    padding: 2rem;
+    height: 15rem;
+    padding: var(--space-xl);
 
     overflow: hidden;
 
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
 
-    background-color: #ffffff;
-
-    box-shadow:
-        0 8px 24px rgb(15 23 42 / 5%),
-        inset 0 1px 0 rgb(255 255 255 / 70%);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-xs);
 
     transition:
         transform var(--transition-fast),
-        box-shadow var(--transition-fast),
-        border-color var(--transition-fast);
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
 .product-card:hover .product-image-box {
     transform: translateY(-2px);
 
     border-color: var(--color-border-hover);
-
-    box-shadow:
-        0 14px 30px rgb(15 23 42 / 8%),
-        inset 0 1px 0 rgb(255 255 255 / 80%);
+    box-shadow: var(--shadow-sm);
 }
 
 .product-image {
@@ -151,7 +239,6 @@ defineProps<{
 
     width: auto;
     height: auto;
-
     max-width: 100%;
     max-height: 100%;
 
@@ -173,7 +260,7 @@ defineProps<{
     flex: 1;
     flex-direction: column;
 
-    padding: 1.15rem 1.25rem 1.25rem;
+    padding: var(--space-lg);
 }
 
 /* ==========================
@@ -181,7 +268,7 @@ defineProps<{
 ========================== */
 
 .product-category {
-    margin: 0 0 0.55rem;
+    margin: 0 0 var(--space-sm);
 
     color: var(--color-primary);
 
@@ -200,13 +287,13 @@ defineProps<{
     display: -webkit-box;
 
     min-height: 3rem;
-    margin: 0 0 1rem;
+    margin: 0 0 var(--space-md);
 
     overflow: hidden;
 
     color: var(--color-text);
 
-    font-size: 1rem;
+    font-size: var(--font-size-md);
     font-weight: 700;
     line-height: 1.5;
 
@@ -229,7 +316,7 @@ defineProps<{
     align-items: center;
     justify-content: space-between;
 
-    gap: 0.75rem;
+    gap: var(--space-sm);
     margin-top: auto;
 }
 
@@ -238,7 +325,7 @@ defineProps<{
 
     color: var(--color-text);
 
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-weight: 800;
     letter-spacing: -0.03em;
 }
@@ -248,26 +335,29 @@ defineProps<{
     align-items: center;
     flex-shrink: 0;
 
-    gap: 0.3rem;
+    gap: var(--space-xs);
 
     color: var(--color-text-muted);
 
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
 }
 
 .product-rating i {
     color: var(--color-rating);
-    font-size: 0.78rem;
+
+    font-size: var(--font-size-xs);
 }
 
 .rating-value {
     color: var(--color-text);
+
     font-weight: 700;
 }
 
 .rating-count {
     color: var(--color-text-muted);
-    font-size: 0.72rem;
+
+    font-size: var(--font-size-xs);
 }
 
 /* ==========================
@@ -278,21 +368,20 @@ defineProps<{
     display: inline-flex;
     align-items: center;
 
-    gap: 0.4rem;
     width: fit-content;
-
-    margin-top: 1.1rem;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
 
     color: var(--color-primary);
 
-    font-size: 0.78rem;
+    font-size: var(--font-size-xs);
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
 .product-action i {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
 
     transition: transform var(--transition-fast);
 }
@@ -306,25 +395,33 @@ defineProps<{
 ========================== */
 
 @media (max-width: 576px) {
+    .wishlist-toggle {
+        top: var(--space-md);
+        right: var(--space-md);
+
+        width: 38px;
+        height: 38px;
+    }
+
     .product-image-area {
-        padding: 0.75rem 0.75rem 0;
+        padding: var(--space-sm) var(--space-sm) 0;
     }
 
     .product-image-box {
-        height: 210px;
-        padding: 1.5rem;
+        height: 13.125rem;
+        padding: var(--space-lg);
     }
 
     .product-content {
-        padding: 1rem;
+        padding: var(--space-md);
     }
 
     .product-title {
-        font-size: 0.95rem;
+        font-size: var(--font-size-sm);
     }
 
     .product-price {
-        font-size: 1.1rem;
+        font-size: var(--font-size-md);
     }
 
     .rating-count {

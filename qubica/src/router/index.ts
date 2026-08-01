@@ -1,34 +1,45 @@
 import {
-    createRouter,
-    createWebHistory,
-    type RouteRecordRaw
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw
 } from "vue-router";
-
+import CartView from "../views/CartView.vue";
 import CatalogView from "../views/CatalogView.vue";
 import ProductDetailView from "../views/ProductDetailView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import WishlistView from "../views/WishListView.vue";
 
 const routes: RouteRecordRaw[] = [
-    {
-        path: "/",
-        name: "catalog",
-        component: CatalogView
-    },
-    {
-        path: "/products/:id",
-        name: "product-detail",
-        component: ProductDetailView
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        name: "not-found",
-        component: NotFoundView
-    }
+  {
+    path: "/",
+    name: "catalog",
+    component: CatalogView
+  },
+  {
+    path: "/products/:id",
+    name: "product-detail",
+    component: ProductDetailView
+  },
+  {
+    path: "/cart",
+    name: "cart",
+    component: CartView
+  },
+  {
+    path: "/wishlist",
+    name: "wishlist",
+    component: WishlistView
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "not-found",
+    component: NotFoundView
+  }
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes
+  history: createWebHistory(),
+  routes
 });
 
 export default router;
