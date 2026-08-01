@@ -71,7 +71,12 @@ const {
                 :to="{ name: 'catalog' }"
                 class="catalog-link"
             >
-                Vai al catalogo
+                <i
+                    class="bi bi-arrow-left"
+                    aria-hidden="true"
+                ></i>
+
+                Back to catalog
             </RouterLink>
         </div>
 

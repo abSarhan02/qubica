@@ -186,19 +186,19 @@ watch(
 
                         {{
                             isFavorite
-                                ? "Rimuovi dai preferiti"
-                                : "Aggiungi ai preferiti"
+                                ? "Delete from favorites"
+                                : "Add to favorites"
                         }}
                     </button>
                     <button class="add-to-cart-button" :class="{ added: isAdded }" type="button" @click="addToCart">
                         <i class="bi" :class="isAdded ? 'bi-check-lg' : 'bi-cart-plus'" aria-hidden="true"></i>
 
-                        {{ isAdded ? "Aggiunto" : "Aggiungi al carrello" }}
+                        {{ isAdded ? "Aggiunto" : "Add to cart" }}
                     </button>
                 </div>
             </div>
         </article>
-        <ToastNotification message="Prodotto aggiunto al carrello" :visible="isToastVisible" />
+        <ToastNotification message="Product added" :visible="isToastVisible" />
     </section>
 
 </template>
