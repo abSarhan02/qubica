@@ -1,48 +1,147 @@
-# qubica
+# Vitrina
 
-This template should help get you started developing with Vue 3 in Vite.
+Vitrina is a modern e-commerce web application built with **Vue 3**, **TypeScript**, **Pinia**, and the **Fake Store API**.
 
-## Recommended IDE Setup
+The application allows users to browse products, filter them by category, view product details, manage a shopping cart and a wishlist, and switch between light and dark themes.
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+# Features
 
-## Recommended Browser Setup
+- Browse all available products
+- Dynamic categories loaded from the API
+- Filter products by category
+- Product detail page
+- Shopping cart
+- Wishlist
+- Light / Dark theme
+- LocalStorage persistence
+- Responsive layout
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Type Support for `.vue` Imports in TS
+# Technologies
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Vue 3
+- TypeScript
+- Pinia
+- Vue Router
+- Axios
+- Bootstrap Icons
+- CSS
 
-## Customize configuration
+---
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+# Project Structure
 
-## Project Setup
+```text
+src
+│
+├── assets
+├── components
+├── router
+├── services
+├── stores
+├── types
+├── views
+├── App.vue
+└── main.ts
+```
 
-```sh
+---
+
+# Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/abSarhan02/qubica.git
+```
+
+Move into the project folder:
+
+```bash
+cd qubica
+```
+
+Install dependencies:
+
+```bash
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+Start the local server:
 
-```sh
+```bash
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Build the project:
 
-```sh
+```bash
 npm run build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+---
 
-```sh
-npm run test:unit
-```
+# API
+
+This project uses the **Fake Store API**.
+
+https://fakestoreapi.com/
+
+---
+
+# Main Features
+
+## Product Catalog
+
+Browse all available products.
+
+## Categories
+
+Products can be filtered using dynamic categories retrieved from the API.
+
+## Product Detail
+
+Each product has its own detail page with:
+
+- image
+- title
+- description
+- category
+- rating
+- price
+
+## Shopping Cart
+
+- Add products
+- Remove products
+- Update quantity
+- Automatic total calculation
+- LocalStorage persistence
+
+## Wishlist
+
+- Save favourite products
+- Remove favourites
+- LocalStorage persistence
+
+## Theme
+
+- Light mode
+- Dark mode
+- Theme persistence
+
+---
+## AI Usage
+
+Artificial Intelligence was used as a supporting tool during the development of this project.
+
+It was mainly used to discuss implementation ideas, understand Vue concepts, review code, and improve the overall structure of the application.
+
+All code was reviewed, tested, adapted, and integrated manually.
+---
+
+# Author
+
+**Abdelkhalek Sarhan (Ab)**
