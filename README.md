@@ -4,6 +4,9 @@ Vitrina is a modern e-commerce web application built with **Vue 3**, **TypeScrip
 
 The application allows users to browse products, filter them by category, view product details, manage a shopping cart and a wishlist, and switch between light and dark themes.
 ---
+# Live Demo
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-0071E3?style=for-the-badge&logo=vercel&logoColor=white)](https://qubica.vercel.app/)
 
 # Features
 
