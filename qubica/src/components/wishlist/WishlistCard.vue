@@ -67,7 +67,7 @@ const emit = defineEmits<{
                         aria-hidden="true"
                     ></i>
 
-                    Aggiungi al carrello
+                    Add to cart
                 </button>
 
                 <button

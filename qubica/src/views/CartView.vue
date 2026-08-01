@@ -26,10 +26,10 @@ const {
         <div class="cart-header">
             <div>
                 <p class="eyebrow">
-                    Il tuo ordine
+                    Your order
                 </p>
 
-                <h1>Carrello</h1>
+                <h1>Cart</h1>
 
                 <p v-if="!isEmpty">
                     {{ totalItems }}
@@ -48,7 +48,7 @@ const {
                     aria-hidden="true"
                 ></i>
 
-                Svuota carrello
+                Clear cart
             </button>
         </div>
 
@@ -61,10 +61,10 @@ const {
                 aria-hidden="true"
             ></i>
 
-            <h2>Il carrello è vuoto</h2>
+            <h2>The cart is empty </h2>
 
             <p>
-                Aggiungi un prodotto per iniziare il tuo ordine.
+                Add products to your cart to start an order.
             </p>
 
             <RouterLink
@@ -91,20 +91,20 @@ const {
             </div>
 
             <aside class="cart-summary">
-                <h2>Riepilogo ordine</h2>
+                <h2>Order summary</h2>
 
                 <div class="summary-row">
-                    <span>Prodotti</span>
+                    <span>Products</span>
                     <span>{{ totalItems }}</span>
                 </div>
 
                 <div class="summary-row">
-                    <span>Spedizione</span>
-                    <span>Gratuita</span>
+                    <span>Shipping</span>
+                    <span>Free</span>
                 </div>
 
                 <div class="summary-total">
-                    <span>Totale</span>
+                    <span>Total</span>
 
                     <strong>
                         {{
@@ -116,12 +116,7 @@ const {
                     </strong>
                 </div>
 
-                <button
-                    class="checkout-button"
-                    type="button"
-                >
-                    Procedi al checkout
-                </button>
+                
             </aside>
         </div>
     </section>
@@ -264,7 +259,7 @@ const {
 
     color: var(--color-text);
 
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-l);
     font-weight: 800;
     letter-spacing: -0.02em;
 }

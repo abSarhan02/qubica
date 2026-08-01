@@ -3,86 +3,65 @@ import { defineStore } from "pinia";
 
 import type { Product } from "../types/product";
 
-import {
-    loadFromStorage,
-    saveToStorage
-} from "../utils/storage";
+export const useWishlistStore = defineStore("wishlist", () => {
+    const savedWishlist = localStorage.getItem("vitrina-wishlist");
 
-const WISHLIST_STORAGE_KEY = "vitrina-wishlist";
+    const products = ref<Product[]>(
+        savedWishlist ? JSON.parse(savedWishlist) : []
+    );
 
-export const useWishlistStore = defineStore(
-    "wishlist",
-    () => {
-        const products = ref<Product[]>(
-            loadFromStorage<Product[]>(
-                WISHLIST_STORAGE_KEY,
-                []
-            )
+    const totalItems = computed(() => {
+        return products.value.length;
+    });
+
+    const isEmpty = computed(() => {
+        return products.value.length === 0;
+    });
+
+    function contains(productId: number): boolean {
+        return products.value.some(
+            product => product.id === productId
         );
+    }
 
-        const totalItems = computed<number>(() => {
-            return products.value.length;
-        });
-
-        const isEmpty = computed<boolean>(() => {
-            return products.value.length === 0;
-        });
-
-        function contains(productId: number): boolean {
-            return products.value.some(
-                product => product.id === productId
-            );
-        }
-
-        function addProduct(product: Product): void {
-            if (contains(product.id)) {
-                return;
-            }
-
+    function toggleProduct(product: Product): void {
+        if (contains(product.id)) {
+            removeProduct(product.id);
+        } else {
             products.value.push(product);
         }
-
-        function removeProduct(productId: number): void {
-            products.value = products.value.filter(
-                product => product.id !== productId
-            );
-        }
-
-        function toggleProduct(product: Product): void {
-            if (contains(product.id)) {
-                removeProduct(product.id);
-                return;
-            }
-
-            addProduct(product);
-        }
-
-        function clearWishlist(): void {
-            products.value = [];
-        }
-
-        watch(
-            products,
-            newProducts => {
-                saveToStorage(
-                    WISHLIST_STORAGE_KEY,
-                    newProducts
-                );
-            },
-            {
-                deep: true
-            }
-        );
-
-        return {
-            products,
-            totalItems,
-            isEmpty,
-            contains,
-            addProduct,
-            removeProduct,
-            toggleProduct,
-            clearWishlist
-        };
     }
-);
+
+    function removeProduct(productId: number): void {
+        products.value = products.value.filter(
+            product => product.id !== productId
+        );
+    }
+
+    function clearWishlist(): void {
+        products.value = [];
+    }
+
+    watch(
+        products,
+        () => {
+            localStorage.setItem(
+                "vitrina-wishlist",
+                JSON.stringify(products.value)
+            );
+        },
+        {
+            deep: true
+        }
+    );
+
+    return {
+        products,
+        totalItems,
+        isEmpty,
+        contains,
+        toggleProduct,
+        removeProduct,
+        clearWishlist
+    };
+});

@@ -3,7 +3,7 @@ defineProps<{
     message: string;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
     retry: [];
 }>();
 </script>
@@ -21,11 +21,10 @@ const emit = defineEmits<{
         <p>{{ message }}</p>
 
         <button
-            class="retry-button"
             type="button"
-            @click="emit('retry')"
+            @click="$emit('retry')"
         >
-            Riprova
+            Try again
         </button>
     </div>
 </template>

@@ -3,10 +3,10 @@ import { storeToRefs } from "pinia";
 
 import WishlistCard from "../components/wishlist/WishlistCard.vue";
 
-import { useCartStore } from "../stores/cartStore";
+import { useCartStore } from "../stores/cartStore.ts";
 import { useWishlistStore } from "../stores/wishListStore.ts";
 
-import type { Product } from "../types/product";
+import type { Product } from "../types/product.ts";
 
 const wishlistStore = useWishlistStore();
 const cartStore = useCartStore();
@@ -32,7 +32,7 @@ function addToCart(product: Product): void {
         <div class="wishlist-header">
             <div>
                 <p class="eyebrow">
-                    I tuoi preferiti
+                    Wishlist
                 </p>
 
                 <h1>Wishlist</h1>
@@ -58,7 +58,7 @@ function addToCart(product: Product): void {
                     aria-hidden="true"
                 ></i>
 
-                Svuota wishlist
+                remove all
             </button>
         </div>
 
@@ -71,17 +71,17 @@ function addToCart(product: Product): void {
                 aria-hidden="true"
             ></i>
 
-            <h2>La wishlist è vuota</h2>
+            <h2>The wishlist is empty</h2>
 
             <p>
-                Salva i prodotti che ti interessano per ritrovarli facilmente.
+                You haven't added any products to your wishlist yet. Start exploring our catalog and add your favorite items to your wishlist for easy access later.
             </p>
 
             <RouterLink
                 :to="{ name: 'catalog' }"
                 class="catalog-link"
             >
-                Esplora il catalogo
+                Go to catalog
             </RouterLink>
         </div>
 

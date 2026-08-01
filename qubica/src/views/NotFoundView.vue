@@ -8,16 +8,16 @@
         </p>
 
         <h1>
-            Pagina non trovata
+            Page not found
         </h1>
 
         <p>
-            La pagina richiesta non esiste.
+            The page you are looking for does not exist or has been moved.
         </p>
 
         <RouterLink to="/">
             <i class="bi bi-arrow-left"></i>
-            Torna al catalogo
+            Back to home
         </RouterLink>
     </section>
 </template>
